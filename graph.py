@@ -5,7 +5,10 @@ import networkx as nx
 
 
 def l2(a, b):
-    """l2 norm function"""
+    """
+    l2 norm function
+    a, b: a coordinate 2-tuple of the form (x, y)
+    """
     return math.sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2)
 
 
