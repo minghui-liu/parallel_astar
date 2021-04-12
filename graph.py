@@ -50,6 +50,6 @@ def knn_graph(N, K=-1, seed=None):
     # add edges
     for i in range(N):
         for neighbor in kNN[i]:
-            G.add_edge(i, neighbor[1], weight=neighbor[0]) # neighbor[0] is l2 distance, neighbor[1] is node number
+            G.add_edge(i, neighbor[1], weight=-1.0*neighbor[0]) # neighbor[0] is l2 distance, neighbor[1] is node number
     
     return G
