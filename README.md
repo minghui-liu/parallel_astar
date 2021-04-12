@@ -1,2 +1,2 @@
 # parallel_astar
-Parallel Hash Distributed Astar Algorithm
+Parallel Hash Distributed A* Algorithm
