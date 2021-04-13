@@ -7,7 +7,7 @@ import networkx as nx
 def l2(a, b):
     """
     l2 norm function
-    a, b: a coordinate 2-tuple of the form (x, y)
+        a, b: a coordinate 2-tuple of the form (x, y)
     """
     return math.sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2)
 
@@ -15,9 +15,12 @@ def l2(a, b):
 def knn_graph(N, K=-1, seed=None):
     """
     construct an undirected graph using kNN
-    N: number of nodes
-    K: number of nearest neighbors, default = 2*e*log(N)
-    seed: a random seed integer
+    Parameters:
+        N: number of nodes
+        K: number of nearest neighbors, default = 2*e*log(N)
+        seed: a random seed integer
+    Return:
+        An undirected networkx graph
     """
     if seed == None:
         random.seed()

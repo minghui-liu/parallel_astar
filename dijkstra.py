@@ -1,6 +1,16 @@
 
 # Dijkstra's algorithm for comparison and correctness check
 def dijkstra(G, N, src, dest):
+    """
+    Dijkstra's shortest path algorithm
+    Parameters:
+        G: networkx graph
+        N: number of nodes
+        src: source node id
+        dest: destination id
+    Return:
+        (cost, path)
+    """
     unvisited = set(range(N))
     dist = [float('inf') for i in range(N)]
     dist[src] = 0

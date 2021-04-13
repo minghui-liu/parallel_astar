@@ -3,7 +3,6 @@ import heapq
 import math
 
 
-
 def reconstruct_path(prev, curr):
     path = [curr]
     while prev[curr]:
@@ -18,13 +17,13 @@ def l2_heuristic(curr, dest):
 def sequential_astar(G, N, src, dest, H):
     """
     A sequential implementation of A* search algorithm
-    Arguments:
+    Parameters:
         G: the networkx graph
         N: number of nodes
         src: source node id
         dest: destination node id
         H: heuristic function, parameters (a, b) where a and b are coordinates in 2-tuple form
-    Returns:
+    Return:
         (cost, path)
     """
     openSet = [(0, src)]
