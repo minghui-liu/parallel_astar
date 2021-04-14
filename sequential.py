@@ -14,7 +14,7 @@ def l2_heuristic(curr, dest):
     return math.sqrt((curr[0]-dest[0])**2 + (curr[1]-dest[1])**2)
 
 # Sequential A* Search
-def sequential_astar(G, N, src, dest, H):
+def sequential_astar(G, N, src, dest, H=l2_heuristic):
     """
     A sequential implementation of A* search algorithm
     Parameters:
@@ -44,7 +44,7 @@ def sequential_astar(G, N, src, dest, H):
             if nbr in closedSet:
                 continue
             gcost = costToCome[curr] + attr['weight']
-            fcost = gcost + l2_heuristic((G.nodes[nbr]['x'],G.nodes[nbr]['y']), (G.nodes[dest]['x'],G.nodes[dest]['y']))
+            fcost = gcost + H((G.nodes[nbr]['x'],G.nodes[nbr]['y']), (G.nodes[dest]['x'],G.nodes[dest]['y']))
             if gcost > costToCome[nbr]:
                 continue
             costToCome[nbr] = gcost
