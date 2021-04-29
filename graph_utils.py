@@ -15,6 +15,16 @@ def l2(a, b):
     return math.sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2)
 
 
+def make_l2_heuristic(G):
+    def l2_heuristic(n1, n2):
+        return l2((G.nodes[n1]['x'], G.nodes[n1]['y']), (G.nodes[n2]['x'], G.nodes[n2]['y']))
+    return l2_heuristic
+
+def make_sorting_fn(G):
+    def sort_fn(node):
+        return G.nodes[node]['x'] + G.nodes[node]['y']
+    return sort_fn 
+    
 def knn_graph(N, K=None, seed=None, canvas_dim=40):
     """
     construct an undirected graph using kNN
@@ -82,7 +92,7 @@ def rdisc_graph(N, R=None, seed=None, canvas_dim=40, unit_vol=4):
     for i in range(N):
         qualified_nodes = [] # priority queue
         for j in range(N):
-            if i == j: # skip myself
+            if j==i: # avoid duplicate edges and self loops
                 continue
             # note heapq is a min heap implementation (always pops smallest element)
             dist = l2(coordinates[i], coordinates[j]) 
@@ -107,12 +117,36 @@ def rdisc_graph(N, R=None, seed=None, canvas_dim=40, unit_vol=4):
     return G, pos
 
 
-
 def visualize(G, pos, savefile):
     ### make visualizations better
     f = plt.figure()
     nx.draw_networkx_nodes(G, pos, node_size=20)
     nx.draw_networkx_edges(G, pos, width=0.2)
+    # nx.draw_spring(G, ax=f.add_subplot(111))
+    f.savefig(savefile)
+
+def visualize_path(G, pos, path, savefile):
+    ### make visualizations better
+    f = plt.figure()
+    node_colours = ['#1f78b4'] * G.number_of_nodes() #default node colour
+    for node in G.nodes():
+        if node in path:
+            node_colours[node] = (1,1,0)
+    
+    node_colours[path[0]] = (1,0,0)
+    node_colours[path[-1]] = (0,1,0)
+
+    nx.draw_networkx_nodes(G, pos, node_size=20, node_color=node_colours)
+    
+    shortest_path_edges = [(path[i], path[i+1]) for i in range(len(path)-1)] + [(path[i+1], path[i]) for i in range(len(path)-1)]
+    edge_colours = ['k'] * G.number_of_edges()
+    widths = [0.2] * G.number_of_edges()
+    for i,edge in enumerate(G.edges()):
+        if edge in shortest_path_edges:
+            edge_colours[i] = (0,0,0) 
+            widths[i] = 1
+
+    nx.draw_networkx_edges(G, pos, width=widths, edge_color=edge_colours)
     # nx.draw_spring(G, ax=f.add_subplot(111))
     f.savefig(savefile)
 
