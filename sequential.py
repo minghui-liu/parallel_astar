@@ -1,6 +1,8 @@
 import random
 import heapq
 import math
+from graph_utils import knn_graph, rdisc_graph, visualize
+import networkx as nx
 
 
 def reconstruct_path(prev, curr):
@@ -50,3 +52,8 @@ def sequential_astar(G, N, src, dest, H=l2_heuristic):
             costToCome[nbr] = gcost
             prev[nbr] = curr
             heapq.heappush(openSet, (fcost, nbr))
+
+if __name__ == "__main__":
+    #G, pos = knn_graph(100, seed=42)
+    G, pos = rdisc_graph(100)
+    visualize(G,pos,"sample.png")
