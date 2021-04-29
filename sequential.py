@@ -3,7 +3,9 @@ import heapq
 import math
 from graph_utils import knn_graph, rdisc_graph, visualize, make_l2_heuristic, l2, visualize_path, make_sorting_fn
 import networkx as nx
+import time 
 # import networkx.algorithms.shortest_paths.astar.astar_path as astar_path
+from external.networkx_astar import astar_path
 
 def reconstruct_path(prev, curr):
     path = [curr]
@@ -50,8 +52,7 @@ def sequential_astar(G, N, src, dest, heur_func=l2):
             prev[nbr] = curr
             heapq.heappush(openSet, (fcost, nbr))
 
-if __name__ == "__main__":
-    #G, pos = knn_graph(100, seed=42)
+def test():
     G, pos = rdisc_graph(100, R=8, seed=35)
     visualize(G, pos, "sample_graph.png")
     nodes = list(G.nodes())
@@ -59,3 +60,35 @@ if __name__ == "__main__":
     path = nx.algorithms.shortest_paths.astar.astar_path(G, nodes[0], nodes[-1], heuristic=make_l2_heuristic(G))
     visualize_path(G, pos, path, "sample_path.png")
     print(path)
+
+if __name__ == "__main__":
+    vertex_counts = [100, 500, 1000, 2000]
+    knn_times = []
+    rdisc_times = []
+    seed = 35
+    #knn times
+    for count in vertex_counts:
+        G, pos = knn_graph(count, seed=seed)
+        nodes = list(G.nodes())
+        nodes.sort(key=make_sorting_fn(G))
+        src, dst = nodes[0], nodes[-1]
+        tic = time.perf_counter()
+        path = nx.algorithms.shortest_paths.astar.astar_path(G, nodes[0], nodes
+        [-1], heuristic=make_l2_heuristic(G))
+        toc = time.perf_counter()
+        knn_times.append((toc-tic)*1000)
+    
+    print(f"KNN sequential timings (ms) = {knn_times}")
+    
+    for count in vertex_counts:
+        G, pos = rdisc_graph(count, seed=seed)
+        nodes = list(G.nodes())
+        nodes.sort(key=make_sorting_fn(G))
+        src, dst = nodes[0], nodes[-1]
+        tic = time.perf_counter()
+        # path = nx.algorithms.shortest_paths.astar.astar_path(G, nodes[0], nodes[-1], heuristic=make_l2_heuristic(G))
+        path = astar_path(G, nodes[0], nodes[-1], heuristic=make_l2_heuristic(G))
+        toc = time.perf_counter()
+        rdisc_times.append((toc-tic)*1000)
+
+    print(f"RDisc sequential timings (ms) = {rdisc_times}")

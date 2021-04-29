@@ -110,7 +110,7 @@ def rdisc_graph(N, R=None, seed=None, canvas_dim=40, unit_vol=4):
     # add edges
     for i in range(N):
         for neighbor in neighbours[i]:
-            G.add_edge(i, neighbor[1], weight=-1.0*neighbor[0]) # neighbor[0] is l2 distance, neighbor[1] is node number
+            G.add_edge(i, neighbor[1], weight=1.0*neighbor[0]) # neighbor[0] is l2 distance, neighbor[1] is node number
     pos = {}
     for i, coord in enumerate(coordinates):
         pos[i] = tuple(coord) 
@@ -129,14 +129,16 @@ def visualize_path(G, pos, path, savefile):
     ### make visualizations better
     f = plt.figure()
     node_colours = ['#1f78b4'] * G.number_of_nodes() #default node colour
+    node_sizes = [20] * G.number_of_nodes() #default node colour
     for node in G.nodes():
         if node in path:
             node_colours[node] = (1,1,0)
-    
+            node_sizes[node] = 100
+
     node_colours[path[0]] = (1,0,0)
     node_colours[path[-1]] = (0,1,0)
 
-    nx.draw_networkx_nodes(G, pos, node_size=20, node_color=node_colours)
+    nx.draw_networkx_nodes(G, pos, node_size=node_sizes, node_color=node_colours)
     
     shortest_path_edges = [(path[i], path[i+1]) for i in range(len(path)-1)] + [(path[i+1], path[i]) for i in range(len(path)-1)]
     edge_colours = ['k'] * G.number_of_edges()
@@ -150,3 +152,9 @@ def visualize_path(G, pos, path, savefile):
     # nx.draw_spring(G, ax=f.add_subplot(111))
     f.savefig(savefile)
 
+def path_length(G, path):
+    length = 0
+    for i in range(len(path)-1):
+        u, v = path[i], path[i+1]
+        length += G.edges[u,v]['weight']
+    return length
