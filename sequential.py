@@ -5,6 +5,7 @@ from graph_utils import knn_graph, rdisc_graph, visualize, make_l2_heuristic, l2
 import networkx as nx
 import time 
 # import networkx.algorithms.shortest_paths.astar.astar_path as astar_path
+from external.networkx_astar import astar_path
 
 def reconstruct_path(prev, curr):
     path = [curr]
@@ -85,8 +86,8 @@ if __name__ == "__main__":
         nodes.sort(key=make_sorting_fn(G))
         src, dst = nodes[0], nodes[-1]
         tic = time.perf_counter()
-        path = nx.algorithms.shortest_paths.astar.astar_path(G, nodes[0], nodes
-        [-1], heuristic=make_l2_heuristic(G))
+        # path = nx.algorithms.shortest_paths.astar.astar_path(G, nodes[0], nodes[-1], heuristic=make_l2_heuristic(G))
+        path = astar_path(G, nodes[0], nodes[-1], heuristic=make_l2_heuristic(G))
         toc = time.perf_counter()
         rdisc_times.append((toc-tic)*1000)
 
