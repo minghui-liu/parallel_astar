@@ -151,10 +151,8 @@ class ParallelAStar:
                     msgs = defaultdict(list)
             else:
                 if self.termination_future.Test():
-                    print(f"rank {rank} - testing termination")
+                    #print(f"rank {rank} - testing termination")
                     if self.check_termination():
-                        if rank==0:
-                            print("here-3")
                         print(f"rank{rank} Termination condition reached")
                         return  
                     else:
@@ -214,7 +212,7 @@ class ParallelAStar:
 
 
 if __name__ == "__main__":
-    seed = 32
+    seed = 49
     G, pos = knn_graph(1000, seed=seed)
     nodes = list(G.nodes())
     nodes.sort(key=make_sorting_fn(G))
