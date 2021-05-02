@@ -158,3 +158,9 @@ def path_length(G, path):
         u, v = path[i], path[i+1]
         length += G.edges[u,v]['weight']
     return length
+
+def dump_graph(G):
+    f = open("graph.txt", "w")
+    for node in range(G.number_of_nodes()):
+        f.write(",".join([str(edge[1]) for edge in G.edges(node)]) + "\n")
+    f.close
