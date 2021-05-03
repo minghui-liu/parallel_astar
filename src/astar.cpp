@@ -8,22 +8,12 @@ using namespace AStar;
 
 int main()
 {
-    //struct Vec2i coord = {.x=0.25, .y=0.35};
-    //std::cout << coord.x << " " << coord.y << std::endl;
+    Graph G = Graph((char*)"../test_graphs/nodes.out", (char*)"../test_graphs/edges.out");
 
-    Node node1 = Node(Vec2i(10.0, 100.0), 5);
-    Node node2 = Node(Vec2i(10.0, 100.0), 50);
-    node1.print_info();
-    node2.print_info();
+    G.astar(2263,4613);
+    G.show_path(4613);
+    //G.print_info();
 
-    std::vector<Node> neighbours_1 = {node2};
-    std::vector<Node> neighbours_2 = {node1};
-
-    node1.add_neighbours(neighbours_1);
-    node2.add_neighbours(neighbours_2);
-
-    node1.print_neighbours();
-    node2.print_neighbours();
 
     return 0;
 }

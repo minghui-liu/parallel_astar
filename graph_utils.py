@@ -5,6 +5,7 @@ import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
+import os
 matplotlib.use("Agg")
 
 def l2(a, b):
@@ -158,3 +159,18 @@ def path_length(G, path):
         u, v = path[i], path[i+1]
         length += G.edges[u,v]['weight']
     return length
+
+def save_graph(G, path):
+    with open(os.path.join(path,"nodes.out"), "w") as f:
+        number_of_nodes = G.number_of_nodes()
+        for i in range(number_of_nodes):
+            f.write(f"{i} {G.nodes[i]['x']} {G.nodes[i]['y']}")
+            f.write("\n")
+
+    with open(os.path.join(path,"edges.out"), "w") as f:
+        for edge in G.edges():
+            weight = G.edges[edge]['weight']
+            f.write(f"{edge[0]} {edge[1]} {weight}")
+            f.write("\n")
+
+
