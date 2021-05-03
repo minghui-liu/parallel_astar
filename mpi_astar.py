@@ -5,7 +5,7 @@ from collections import defaultdict
 import networkx as nx
 import numpy as np
 import time
-from graph_utils import knn_graph, rdisc_graph, visualize, make_l2_heuristic, l2, visualize_path, make_sorting_fn, path_length
+from graph_utils import knn_graph, rdisc_graph, visualize, make_l2_heuristic, l2, visualize_path, make_sorting_fn, path_length, save_graph
 
 from external.networkx_astar import astar_path
 
@@ -16,19 +16,19 @@ world_size = comm.Get_size()
 push = heappush
 pop = heappop
 
-# def hash_fn(x):
-#     # we should look at more hash functions
-#     return x % world_size 
+def hash_fn(x):
+    # we should look at more hash functions
+    return x % world_size 
 
 
-def make_oneD_hash(G, num_procs,canvas_dim):
-    lo = -canvas_dim/2
-    high = canvas_dim/2
-    interval = canvas_dim / num_procs
-    def hash_fn(node):
-        y = G.nodes[node]['y']
-        return (y-lo)//interval
-    return hash_fn
+# def make_oneD_hash(G, num_procs,canvas_dim):
+#     lo = -canvas_dim/2
+#     high = canvas_dim/2
+#     interval = canvas_dim / num_procs
+#     def hash_fn(node):
+#         x = G.nodes[node]['x']
+#         return (x-lo)//interval
+#     return hash_fn
 
 
 class ParallelAStar:
@@ -146,16 +146,31 @@ class ParallelAStar:
         return queue_len_recv[0] == 0
 
     def run_astar(self, check_term):
+        time_term_check = 0
+        time_comm = 0
+        time_iter = 0
+
         while True:            
             #if rank == 0:
             # print(f"rank {rank} == Iter number {self.iter} queue {len(self.queue)} running {self.running} \n \n")
             
             if self.iter % check_term == 0:
-                if self.check_termination():
+                tic = time.perf_counter()
+                term = self.check_termination()
+                toc = time.perf_counter()
+                # if rank == 0:
+                #     print(f"{self.iter} - Term Check time = ",toc-tic)
+                time_term_check += toc-tic 
+
+                if term:
+                    print(time_term_check*1000, time_comm*1000, time_iter*1000)
                     return 
 
             if self.queue:
+                tic = time.perf_counter()
                 msgs = self.single_iteration()
+                toc = time.perf_counter()
+                time_iter += toc - tic 
             else:
                 msgs = defaultdict(list)
 
@@ -192,8 +207,12 @@ class ParallelAStar:
             #     #         print("here-5")
             #     # if rank==0:
             #     #     print("here-6")
-
+            tic = time.perf_counter()
             rcvd_msgs = self.exchange_messages(msgs)
+            toc = time.perf_counter()
+            # if rank == 0:
+            #     print(f"{self.iter} - Comm time = ",toc-tic)
+            time_comm += toc-tic
             self.update_queues(rcvd_msgs)
             self.iter += 1
 
@@ -239,18 +258,19 @@ class ParallelAStar:
 
 
 if __name__ == "__main__":
-    seed = 49
+    seed = 12
     canvas_dim = 40
-    G, pos = knn_graph(20000, seed=seed, canvas_dim=canvas_dim)
+    G, pos = knn_graph(5000, seed=seed, canvas_dim=canvas_dim)
     nodes = list(G.nodes())
     nodes.sort(key=make_sorting_fn(G))
     src, dst = nodes[0], nodes[-1]
-    
-    astar = ParallelAStar(G, src, dst, heuristic=make_l2_heuristic(G), hash_fn=make_oneD_hash(G, world_size, canvas_dim))
+    print(f"Source {src} Destination {dst}")
+
+    astar = ParallelAStar(G, src, dst, heuristic=make_l2_heuristic(G), hash_fn=hash_fn)
 
     
     tic = time.perf_counter()
-    astar.run_astar(check_term=10)
+    astar.run_astar(check_term=100)
     toc = time.perf_counter()
     print(f"Astar execution time = {(toc-tic)*1000} ms")
     
@@ -274,6 +294,8 @@ if __name__ == "__main__":
 
         print(path_length(G, seq_path))
         visualize_path(G, pos, seq_path, "sample_path_seq.png")
+
+    save_graph(G, "./test_graphs")
     
 
 
