@@ -6,6 +6,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 import os
+from sklearn.neighbors import NearestNeighbors 
+
 matplotlib.use("Agg")
 
 def l2(a, b):
@@ -43,18 +45,20 @@ def knn_graph(N, K=None, seed=None, canvas_dim=40):
         K = math.ceil(2 * math.e * math.log(N))
     
     coordinates = np.random.uniform(low=-canvas_dim/2, high=canvas_dim/2, size=(N,2))
-    kNN = []
-    for i in range(N):
-        pq = [] # priority queue
-        for j in range(N):
-            if i == j: # skip myself
-                continue
-            # note heapq is a min heap implementation (always pops smallest element)
-            heapq.heappush(pq, (-l2(coordinates[i], coordinates[j]), j)) # use l2 norm
-            if len(pq) > K:
-                heapq.heappop(pq)
-        kNN.append(pq)
-    assert(K == len(kNN[0]))
+    # kNN = []
+    # for i in range(N):
+    #     pq = [] # priority queue
+    #     for j in range(N):
+    #         if i == j: # skip myself
+    #             continue
+    #         # note heapq is a min heap implementation (always pops smallest element)
+    #         heapq.heappush(pq, (-l2(coordinates[i], coordinates[j]), j)) # use l2 norm
+    #         if len(pq) > K:
+    #             heapq.heappop(pq)
+    #     kNN.append(pq)
+    # assert(K == len(kNN[0]))
+    nbrs = NearestNeighbors(n_neighbors=K+1, algorithm='kd_tree').fit(coordinates)
+    distances, indices = nbrs.kneighbors(coordinates)
 
     # construct graph acoording to kNN
     G = nx.Graph()
@@ -64,8 +68,8 @@ def knn_graph(N, K=None, seed=None, canvas_dim=40):
     assert(G.number_of_nodes() == N)
     # add edges
     for i in range(N):
-        for neighbor in kNN[i]:
-            G.add_edge(i, neighbor[1], weight=-1.0*neighbor[0]) # neighbor[0] is l2 distance, neighbor[1] is node number
+        for neighbor,dist in zip(indices[i][1:], distances[i][1:]):
+            G.add_edge(i, neighbor, weight=dist) # neighbor[0] is l2 distance, neighbor[1] is node number
     pos = {}
     for i, coord in enumerate(coordinates):
         pos[i] = tuple(coord) 
