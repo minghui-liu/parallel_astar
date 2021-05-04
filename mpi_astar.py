@@ -259,43 +259,38 @@ class ParallelAStar:
 
 if __name__ == "__main__":
     seed = 12
-    canvas_dim = 40
-    G, pos = knn_graph(5000, seed=seed, canvas_dim=canvas_dim)
+    canvas_dim = 400
+    tic = time.perf_counter()
+    G, pos = knn_graph(1000000, seed=seed, canvas_dim=canvas_dim, K=4)
+    toc = time.perf_counter()
+    print("Graph generation time - ",1000*(toc-tic)," ms")
+    save_graph(G, "./test_graphs")
+    
     nodes = list(G.nodes())
     nodes.sort(key=make_sorting_fn(G))
     src, dst = nodes[0], nodes[-1]
     print(f"Source {src} Destination {dst}")
 
-    astar = ParallelAStar(G, src, dst, heuristic=make_l2_heuristic(G), hash_fn=hash_fn)
+    # astar = ParallelAStar(G, src, dst, heuristic=make_l2_heuristic(G), hash_fn=hash_fn)
 
     
-    tic = time.perf_counter()
-    astar.run_astar(check_term=100)
-    toc = time.perf_counter()
-    print(f"Astar execution time = {(toc-tic)*1000} ms")
+    # tic = time.perf_counter()
+    # astar.run_astar(check_term=100)
+    # toc = time.perf_counter()
+    # print(f"Astar execution time = {(toc-tic)*1000} ms")
     
-    path = astar.retrace_path()
-    comm.Barrier()
+    #path = astar.retrace_path()
+    #comm.Barrier()
     if rank == 0:
-        print("Shortest Path is:")
-        print(path)
-        visualize(G, pos, "sample_graph.png")
-        visualize_path(G, pos, path, "sample_path_mpi.png")
-        print("Shortest Path Length is:")
-        print(path_length(G, path))
-
         print("Shortest path length found by sequential algorithm:")
         
         tic = time.perf_counter()
         seq_path = astar_path(G, src, dst, make_l2_heuristic(G))
         toc = time.perf_counter()
         print(f"Astar (seq) execution time = {(toc-tic)*1000} ms")
+        print("Length of shortest path is - ", path_length(G, seq_path))
+        
 
-
-        print(path_length(G, seq_path))
-        visualize_path(G, pos, seq_path, "sample_path_seq.png")
-
-    save_graph(G, "./test_graphs")
     
 
 

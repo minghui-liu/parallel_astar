@@ -1,12 +1,13 @@
 #ifndef __ASTAR_HPP
 #define __ASTAR_HPP
-
+#define MAX_RECV_BUFF_SIZE 10000
 #include <vector>
 #include <functional>
 #include <set>
 #include <iostream>
 #include <queue>
 #include <tuple>
+#include "mpi.h"
 
 namespace AStar
 {
@@ -67,15 +68,43 @@ namespace AStar
             }
     };
 
+    struct msg{
+        float h;
+        float dist;
+        int node;
+        int parent;
+    }; 
+
     struct Graph
     {
         std::vector<Node> nodes;
         std::priority_queue<OpenListMember, std::vector<OpenListMember>, myComparator > open_list;
+        MPI_Datatype mpi_msg_type;
+        std::vector< std::vector<msg> > message_set;
+        std::vector< std::vector<msg> > send_buffers;
+        struct msg recv_buffer[MAX_RECV_BUFF_SIZE];
+        std::vector< MPI_Request *> send_requests;
+        bool dst_found;
+        bool in_barrier_mode=false;
+
+        int rank;
+        int world_size;
+        int tag;
+        int num_sends;
+
         Graph(char* node_addr, char* edges_addr);
         void print_info();
-        void astar(int src, int dst);
+        void astar_seq(int src, int dst);
+        void create_msg_mpi_datatype();
+        void astar_mpi(int src, int dst);
+        void clear_message_set();
         void show_path(int dst);
         float heuristic(Node &n, Node &dst);
+        int hash(Node &n); //returns the owner of the node
+        void send_message_set();
+        int receive_message_set(); //returns number of messages received
+        void add_msgs_to_open_list(int num_msgs_recvd);
+        struct msg create_msg(float h_, float dist_, int node_, int parent_);
     };
 }
 
