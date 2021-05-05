@@ -1,0 +1,14 @@
+mainmodule main {
+
+  readonly CProxy_Main mainProxy;
+
+  extern module worker;
+
+  mainchare Main {
+    entry Main(CkArgMsg* msg);
+    entry void done();
+    entry void startStep();
+    entry void stepCheckin();
+  };
+
+};

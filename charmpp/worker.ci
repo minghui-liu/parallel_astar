@@ -1,0 +1,8 @@
+module worker {
+
+  array [1D] Worker {
+    entry Worker();
+    entry void sayHi(int);
+  };
+
+};
