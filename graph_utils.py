@@ -165,6 +165,8 @@ def path_length(G, path):
     return length
 
 def save_graph(G, path):
+    os.makedirs(path, exist_ok=True)
+
     with open(os.path.join(path,"nodes.out"), "w") as f:
         number_of_nodes = G.number_of_nodes()
         for i in range(number_of_nodes):
