@@ -30,7 +30,7 @@ Main::Main(CkArgMsg* msg) {
 
   // Display some info about this execution
   //   for the user.
-  CkPrintf("Running \"Hello World\" with %d elements "
+  CkPrintf("Running \"HDA*\" with %d elements "
            "using %d processors.\n",
            numElements, CkNumPes());
 
@@ -57,18 +57,18 @@ void Main::startStep() {
   //   elements in the helloArray array of chare objects.
 
   checkinCount = 0; // repeatitive
-  workerArray.sayHi(curStep);
+  workerArray.hdastar(92577, 51670);
 }
 
-void Main::stepCheckin() {
-  checkinCount++;
-  // CkPrintf("Main::stepCheckin() called, count = %d\n", checkinCount);
-  if (checkinCount >= numElements) {
-    curStep++;
-    checkinCount = 0;
-    workerArray.sayHi(curStep);
-  }
-}
+// void Main::stepCheckin() {
+//   checkinCount++;
+//   // CkPrintf("Main::stepCheckin() called, count = %d\n", checkinCount);
+//   if (checkinCount >= numElements) {
+//     curStep++;
+//     checkinCount = 0;
+//     workerArray.hdastar();
+//   }
+// }
 
 // When called, the "done()" entry method will cause the program
 //   to exit.

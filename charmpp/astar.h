@@ -92,7 +92,7 @@ void Node::print_neighbours()
 
 
 using HeuristicFunction = std::function<uint(Vec2i, Vec2i)>;
-using OpenListMember = std::tuple<float, float, Node*, Node*>;
+using OpenListMember = std::tuple<float, float, Node*, Node*>; // h, proposed_shortest_distance, ThisNode, ProposedParent
 
 class myComparator
 {
@@ -106,10 +106,8 @@ class myComparator
 struct Graph
 {
     std::vector<Node> nodes;
-    std::priority_queue<OpenListMember, std::vector<OpenListMember>, myComparator > open_list;
     Graph(char* node_addr, char* edges_addr);
     void print_info();
-    void astar(int src, int dst);
     void show_path(int dst);
     float heuristic(Node &n, Node &dst);
 };
@@ -171,6 +169,13 @@ void Graph::show_path(int dst)
     }
     std::cout << std::endl;
 }
+
+struct msg {
+    float h;
+    float dist;
+    int node;
+    int parent;
+};
 
 
 #endif //__ASTAR_H__

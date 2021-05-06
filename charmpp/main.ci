@@ -8,7 +8,6 @@ mainmodule main {
     entry Main(CkArgMsg* msg);
     entry void done();
     entry void startStep();
-    entry void stepCheckin();
   };
 
 };

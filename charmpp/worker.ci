@@ -2,7 +2,8 @@ module worker {
 
   array [1D] Worker {
     entry Worker();
-    entry void sayHi(int);
+    entry void hdastar(int, int);
+    entry void receiveNode(float, float, int, int);
   };
 
 };
