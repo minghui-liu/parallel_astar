@@ -40,7 +40,7 @@ Main::Main(CkArgMsg* msg) {
   mainProxy = thisProxy;
 
   // Create the array of Hello chare objects.
-  workerArray = CProxy_Worker::ckNew(numElements);
+  workerArray = CProxy_Worker::ckNew(2263, 4613, numElements, numElements);
 
   startStep();
 }
@@ -57,7 +57,7 @@ void Main::startStep() {
   //   elements in the helloArray array of chare objects.
 
   checkinCount = 0; // repeatitive
-  workerArray.hdastar(92577, 51670);
+  workerArray.hdastar();
 }
 
 // void Main::stepCheckin() {

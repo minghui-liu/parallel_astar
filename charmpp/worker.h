@@ -17,13 +17,14 @@ public:
 
 
   /// Constructors ///
-  Worker();
+  Worker(int, int, int);
   ~Worker();
   Worker(CkMigrateMessage *msg);
 
   /// Entry Methods ///
-  void hdastar(int, int);
+  void hdastar();
   void receiveNode(float, float, int, int);
+  void next_iter();
 
 private:
   int hash(Node &n);
