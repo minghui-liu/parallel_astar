@@ -1,9 +1,10 @@
 module worker {
 
   array [1D] Worker {
-    entry Worker();
-    entry void hdastar(int, int);
+    entry Worker(int, int, int);
+    entry void hdastar();
     entry void receiveNode(float, float, int, int);
+    entry void next_iter();
   };
 
 };

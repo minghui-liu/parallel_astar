@@ -261,7 +261,7 @@ if __name__ == "__main__":
     seed = 12
     canvas_dim = 400
     tic = time.perf_counter()
-    G, pos = knn_graph(1000000, seed=seed, canvas_dim=canvas_dim, K=4)
+    G, pos = knn_graph(10000, seed=seed, canvas_dim=canvas_dim, K=4)
     toc = time.perf_counter()
     print("Graph generation time - ",1000*(toc-tic)," ms")
     save_graph(G, "./test_graphs")

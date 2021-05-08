@@ -7,7 +7,7 @@
 extern /* readonly */ CProxy_Main mainProxy;
 
 
-Worker::Worker() {
+Worker::Worker(int src, int dst, int numElements) {
   // Nothing to do when the Worker chare object is created.
   //   This is where member variables would be initialized
   //   just like in a C++ class constructor.
@@ -15,22 +15,22 @@ Worker::Worker() {
   CkPrintf("Chare %d: G->nodes size = %d\n", thisIndex, G->nodes.size());
   dst_found = false;
   in_barrier_mode = false;
-  numElements = 5;
-  
-  src = 92577;
-  dst = 51670;
+  this->numElements = numElements;
 
-  if (hash(G->nodes[src]) == thisIndex) {
-    CkPrintf("Chare %d: I have src\n", thisIndex);
-    float src_heuristic = G->heuristic(G->nodes[src], G->nodes[dst]);
-    open_list.push(std::make_tuple(src_heuristic, 0.0, &(G->nodes[src]), nullptr));
-    G->nodes[src].open = true;
-    G->nodes[src].latest_shortest_distance_in_open_list = 0;
-  }
+  this->src = src;
+  this->dst = dst; 
+
+   if (hash(G->nodes[src]) == thisIndex) {
+        CkPrintf("Chare %d: I have src\n", thisIndex);
+        float src_heuristic = G->heuristic(G->nodes[src], G->nodes[dst]);
+        open_list.push(std::make_tuple(src_heuristic, 0.0, &(G->nodes[src]), nullptr));
+        G->nodes[src].open = true;
+        G->nodes[src].latest_shortest_distance_in_open_list = 0;
+   }
 
   // int dst_rank = hash(G->nodes[dst]);
-
 }
+
 
 
 // Constructor needed for chare object migration (ignore for now)
@@ -41,7 +41,12 @@ Worker::~Worker() {
   delete G;
 }
 
-void Worker::hdastar(int s, int d) {
+void Worker::next_iter(){
+ if(!open_list.empty())
+    thisProxy[thisIndex].hdastar();
+}
+
+void Worker::hdastar() {
 
   // // Have this chare object say hello to the user.
   // CkPrintf("\"Hello\" from Worker chare # %d on "
@@ -49,7 +54,8 @@ void Worker::hdastar(int s, int d) {
   //          thisIndex, CkMyPe(), step);
 
 
-  while (!open_list.empty()) {
+
+  if(!open_list.empty()){
 
     // Step 2a : process open list
     OpenListMember front = open_list.top();
@@ -62,11 +68,22 @@ void Worker::hdastar(int s, int d) {
     Node * proposed_parent = std::get<3>(front);
 
     if (proposed_shortest_dist > curr_node->latest_shortest_distance_in_open_list) // outdated entry
-      continue;
+    {
+        next_iter();
+        return;
+    }
 
     if (curr_node->closed) {
-      if (curr_node->id == src) continue;
-      if (proposed_shortest_dist > curr_node->f) continue;
+      if (curr_node->id == src)
+      {
+          next_iter();
+          return;
+      }
+      if (proposed_shortest_dist > curr_node->f)
+      {
+          next_iter();
+          return;
+      }
       // this means a new shorter path to a closed node is found
     }
     curr_node->parent = proposed_parent;
@@ -84,7 +101,8 @@ void Worker::hdastar(int s, int d) {
         dst_found = true;
         // MPI_Ibcast(&dst_rcv, 1, MPI_INT, dst_rank, MPI_COMM_WORLD, &dst_req);
       }
-      continue;
+      next_iter();
+      return;
     }
 
     // expand current node
@@ -111,13 +129,11 @@ void Worker::hdastar(int s, int d) {
           if (dist > neighbour->latest_shortest_distance_in_open_list) //no need to add this top open list
             continue;
         }
+        neighbour->open=true;
+        neighbour->latest_shortest_distance_in_open_list = dist;
         open_list.push(std::make_tuple(h_, dist, neighbour, curr_node));
       }
     }
-
-
-
-    
 
     // if ( doneCondition() ) {
     //   // Report to the Main chare object that this chare object
@@ -125,13 +141,15 @@ void Worker::hdastar(int s, int d) {
     //   mainProxy.done();
     // }
   }
-
-
+  next_iter();
+  return;
 
 }
 
+
 void Worker::receiveNode(float h, float dist, int node, int parent) {
-  CkPrintf("Chare %d: received node %d, parent %d, h=%f, dist=%f\n", node, parent, h, dist);
+  CkPrintf("Chare %d: received node %d, parent %d, h=%f, dist=%f\n", thisIndex,node, parent, h, dist);
+  bool enqueue = open_list.empty();
   Node * neighbour = &G->nodes[node];
   Node * curr_node = &G->nodes[parent];
   if (neighbour->open) { //already in open list
@@ -142,7 +160,8 @@ void Worker::receiveNode(float h, float dist, int node, int parent) {
   neighbour->latest_shortest_distance_in_open_list = dist;
   open_list.push(std::make_tuple(h, dist, neighbour, curr_node));
 
-  hdastar(0, 0);
+  if(enqueue)
+    thisProxy[thisIndex].hdastar();
 }
 
 // void Worker::send_message_set() {
