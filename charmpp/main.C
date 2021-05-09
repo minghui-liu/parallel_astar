@@ -12,10 +12,8 @@ Main::Main(CkArgMsg* msg) {
 
   // Initialize the local member variables
   doneCount = 0;    // Set doneCount to 0
-  checkinCount = 0; // Set checkinCount to 0
-  curStep = 1;
   numElements = 5;  // Default numElements to 5
-
+  dst_found = false;
 
   // There should be 0 or 1 command line arguements.
   //   If there is one, it is the number of "Worker"
@@ -42,7 +40,11 @@ Main::Main(CkArgMsg* msg) {
   // Create the array of Hello chare objects.
   workerArray = CProxy_Worker::ckNew(2263, 4613, numElements, numElements);
 
-  startStep();
+  CkCallback *cb = new CkCallback(CkIndex_Main::reportIn(NULL),  mainProxy);
+  workerArray.ckSetReductionClient(cb);
+
+
+  workerArray.hdastar();
 }
 
 
@@ -51,35 +53,24 @@ Main::Main(CkArgMsg* msg) {
 Main::Main(CkMigrateMessage* msg) { }
 
 
-void Main::startStep() {
-  CkPrintf("Main::startStep() called\n");
-  // Invoke the "sayHi()" entry method on all of the
-  //   elements in the helloArray array of chare objects.
-
-  checkinCount = 0; // repeatitive
-  workerArray.hdastar();
+void Main::done() {
+  doneCount++;
+  if (doneCount >= numElements) {
+    workerArray.reportOpenListSize();
+  }
 }
 
-// void Main::stepCheckin() {
-//   checkinCount++;
-//   // CkPrintf("Main::stepCheckin() called, count = %d\n", checkinCount);
-//   if (checkinCount >= numElements) {
-//     curStep++;
-//     checkinCount = 0;
-//     workerArray.hdastar();
-//   }
-// }
 
-// When called, the "done()" entry method will cause the program
-//   to exit.
-void Main::done() {
-
-  // Increment the doneCount.  If all of the Hello chare
-  //   objects have indicated that they are done, then exit.
-  //   Otherwise, continue waiting for the Hello chare objects.
-  doneCount++;
-  if (doneCount >= numElements)
+void Main::reportIn(CkReductionMsg *msg) {
+  int total = *(int *)msg->getData();
+  CkPrintf("Total openlist size = %d\n", total);
+  if (total == 0) {
     CkExit();
+  }
+}
+
+void Main::dstFound() {
+  workerArray.setDstFound();
 }
 
 

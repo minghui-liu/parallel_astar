@@ -42,20 +42,17 @@ Worker::~Worker() {
 }
 
 void Worker::next_iter(){
- if(!open_list.empty())
+  if (!open_list.empty()) {
     thisProxy[thisIndex].hdastar();
+  } else if (dst_found) {
+    mainProxy.done();
+  }
+
 }
 
 void Worker::hdastar() {
 
-  // // Have this chare object say hello to the user.
-  // CkPrintf("\"Hello\" from Worker chare # %d on "
-  //          "processor %d , step %d).\n",
-  //          thisIndex, CkMyPe(), step);
-
-
-
-  if(!open_list.empty()){
+  if (!open_list.empty()) {
 
     // Step 2a : process open list
     OpenListMember front = open_list.top();
@@ -67,20 +64,17 @@ void Worker::hdastar() {
     CkPrintf("Chare %d: Popped %d\n", thisIndex, curr_node->id);
     Node * proposed_parent = std::get<3>(front);
 
-    if (proposed_shortest_dist > curr_node->latest_shortest_distance_in_open_list) // outdated entry
-    {
+    if (proposed_shortest_dist > curr_node->latest_shortest_distance_in_open_list) { // outdated entry
         next_iter();
         return;
     }
 
     if (curr_node->closed) {
-      if (curr_node->id == src)
-      {
+      if (curr_node->id == src) {
           next_iter();
           return;
       }
-      if (proposed_shortest_dist > curr_node->f)
-      {
+      if (proposed_shortest_dist > curr_node->f) {
           next_iter();
           return;
       }
@@ -93,14 +87,11 @@ void Worker::hdastar() {
     curr_node->closed = true;
 
     if (curr_node->id == dst) {
-      CkPrintf("Destination found..\n");
-      CkPrintf("Distance = %f", curr_node->f);
-      // std::cout << "Destination found.." << std::endl;
-      // std::cout << "Distance = " << curr_node->f << std::endl;
-      if (!dst_found)  {
+      CkPrintf("Chare %d: Destination found .. Distance = %f\n", thisIndex, curr_node->f);
+      if (!dst_found) {
         dst_found = true;
-        // MPI_Ibcast(&dst_rcv, 1, MPI_INT, dst_rank, MPI_COMM_WORLD, &dst_req);
       }
+      mainProxy.dstFound();
       next_iter();
       return;
     }
@@ -135,15 +126,10 @@ void Worker::hdastar() {
       }
     }
 
-    // if ( doneCondition() ) {
-    //   // Report to the Main chare object that this chare object
-    //   //   has completed its task.
-    //   mainProxy.done();
-    // }
   }
   next_iter();
-  return;
 
+  return;
 }
 
 
@@ -160,35 +146,25 @@ void Worker::receiveNode(float h, float dist, int node, int parent) {
   neighbour->latest_shortest_distance_in_open_list = dist;
   open_list.push(std::make_tuple(h, dist, neighbour, curr_node));
 
-  if(enqueue)
+  if (enqueue)
     thisProxy[thisIndex].hdastar();
 }
 
-// void Worker::send_message_set() {
-//   int is_complete;
-//   for (int i = 0; i < message_set.size(); i++) {
-//     if (i == thisIndex)
-//       continue;
-//     for (int j = 0; j < message_set[i].size(); j++) {
-//       thisProxy[i].receiveNode();
-//     }
-//   }
-//   num_sends += 1;
-// }
 
+void Worker::setDstFound() {
+  if (!dst_found) {
+    dst_found = true;
+  }
+}
+
+void Worker::reportOpenListSize() {
+  int size = open_list.size();
+  contribute(sizeof(size), &size, CkReduction::sum_int);
+}
 
 int Worker::hash(Node &n) {
   return n.id % numElements;
 }
-
-// struct msg Worker::create_msg(float h_, float dist_, int node_, int parent_) {
-//   struct msg msg_;
-//   msg_.h = h_;
-//   msg_.dist = dist_;
-//   msg_.node = node_;
-//   msg_.parent = parent_;
-//   return msg_;
-// }
 
 
 #include "worker.def.h"
