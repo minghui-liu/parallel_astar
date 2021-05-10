@@ -6,7 +6,11 @@
 #SBATCH -p debug
 #SBATCH --constraint=rhel8
 
-cd /homes/cmsc714-1veb/parallel_astar
+#cd /homes/cmsc714-1veb/parallel_astar
+source ~/.bashrc.mine
+conda activate
+
+cd /lustre/ssingh37/parallel_astar
 
 #. ~/.python-venvs/parallel-astar-env/bin/activate
 

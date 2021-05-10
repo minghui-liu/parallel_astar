@@ -4,7 +4,7 @@ import time
 seed = 12
 canvas_dim = 400
 
-K_list = [4, 8, 16, 32, 64, 75]
+K_list = [4]
 for k in K_list:
     tic = time.perf_counter()
     G, pos = knn_graph(1000000, seed=seed, canvas_dim=canvas_dim, K=k)
