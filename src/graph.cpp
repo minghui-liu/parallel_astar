@@ -235,7 +235,7 @@ void Graph::add_msgs_to_open_list(int num_msgs_recvd)
         //     std::cout << "rank" << rank << " hereeee3" << std::endl;
         if (neighbour->open) //already in open list
         {
-            if (dist > neighbour->latest_shortest_distance_in_open_list) //no need to add this top open list
+            if (dist >= neighbour->latest_shortest_distance_in_open_list) //no need to add this top open list
                 continue;
         }
         h_ = msg_.h;
@@ -255,7 +255,7 @@ void Graph::add_msgs_to_open_list(int num_msgs_recvd)
         dist = msg_.dist;
         if (neighbour->open) //already in open list
         {
-            if (dist > neighbour->latest_shortest_distance_in_open_list) //no need to add this top open list
+            if (dist >= neighbour->latest_shortest_distance_in_open_list) //no need to add this top open list
                 continue;
         }
         h_ = msg_.h;
@@ -334,13 +334,13 @@ void Graph::astar_mpi(int src, int dst)
             float h = std::get<0>(front);
             float proposed_shortest_dist = std::get<1>(front);
             
-            if (proposed_shortest_dist > curr_node->latest_shortest_distance_in_open_list) //outdated entry
-                continue;
+            // if (proposed_shortest_dist > curr_node->latest_shortest_distance_in_open_list) //outdated entry
+            //     continue;
 
             if (curr_node->closed)
             {
                 if (curr_node->id == src)continue;
-                if (proposed_shortest_dist > curr_node->f)continue;
+                if (proposed_shortest_dist >= curr_node->f)continue;
                 // this means a new shorter path to a closed node is found  
             }
             curr_node->parent = proposed_parent;
@@ -351,7 +351,7 @@ void Graph::astar_mpi(int src, int dst)
 
             if (curr_node->id == dst){
                 std::cout << "Destination found.." << std::endl;
-                std::cout << "Distance = " << curr_node->f << std::endl;
+                std::cout << "Distance = " << curr_node->f << " " << proposed_parent << std::endl;
                 if (!dst_found)
                 {
                     dst_found=true;
@@ -402,7 +402,8 @@ void Graph::astar_mpi(int src, int dst)
                 else
                 {
                     MPI_Test(&barrier_req, &barrier_flag, MPI_STATUS_IGNORE);
-                    if(barrier_req){
+                    if(barrier_req)
+                    {
                         int to_send = open_list.size(), to_recv=0;
                         MPI_Allreduce(&to_send, &to_recv, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
                         if(to_recv==0)

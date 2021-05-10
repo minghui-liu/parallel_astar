@@ -11,11 +11,16 @@ int main(int argc, char *argv[])
 {
     MPI_Init(&argc, &argv);
 
+    std::cout << "Reading Graph..." << std::endl;
     Graph G = Graph((char*)"../test_graphs/nodes.out", (char*)"../test_graphs/edges.out");
+    std::cout << "Read Graph..." << std::endl;
     
+
+    std::cout << "Starting Astar..." << std::endl;
     auto start = high_resolution_clock::now();
     G.astar_mpi(102577, 51670);
     auto stop = high_resolution_clock::now();
+    std::cout << "Ending Astar..." << std::endl;
 
     auto duration = duration_cast<milliseconds>(stop - start);
     //G.show_path(4613);
