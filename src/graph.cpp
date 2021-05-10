@@ -319,7 +319,7 @@ void Graph::astar_mpi(int src, int dst)
     send_buffers.resize(world_size);
     send_requests.resize(world_size, nullptr);
 
-    
+    int dst_dst;
     while(true)
     {
         // Step 2: process current open list and populate message set
@@ -337,6 +337,11 @@ void Graph::astar_mpi(int src, int dst)
             // if (proposed_shortest_dist > curr_node->latest_shortest_distance_in_open_list) //outdated entry
             //     continue;
 
+            if ((dst_found) && (h > dst_rcv))
+            {
+                continue;
+            }
+
             if (curr_node->closed)
             {
                 if (curr_node->id == src)continue;
@@ -352,6 +357,7 @@ void Graph::astar_mpi(int src, int dst)
             if (curr_node->id == dst){
                 std::cout << "Destination found.." << std::endl;
                 std::cout << "Distance = " << curr_node->f << " " << proposed_parent << std::endl;
+                dst_rcv = curr_node->f;
                 if (!dst_found)
                 {
                     dst_found=true;
@@ -433,8 +439,6 @@ void Graph::astar_mpi(int src, int dst)
             
         // }
         add_msgs_to_open_list(num_msgs_recvd);
-
-        
 
     }
 }
