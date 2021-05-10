@@ -320,6 +320,7 @@ void Graph::astar_mpi(int src, int dst)
     send_requests.resize(world_size, nullptr);
 
     int dst_dst;
+    dst_found = false;
     while(true)
     {
         // Step 2: process current open list and populate message set
@@ -337,10 +338,10 @@ void Graph::astar_mpi(int src, int dst)
             // if (proposed_shortest_dist > curr_node->latest_shortest_distance_in_open_list) //outdated entry
             //     continue;
 
-            if ((dst_found) && (h > dst_rcv))
-            {
-                continue;
-            }
+            //if ((dst_found) && (h >= dst_rcv))
+            //{
+            //    continue;
+            //}
 
             if (curr_node->closed)
             {
@@ -348,6 +349,10 @@ void Graph::astar_mpi(int src, int dst)
                 if (proposed_shortest_dist >= curr_node->f)continue;
                 // this means a new shorter path to a closed node is found  
             }
+	    //else if(dst_found)
+	    //{
+		//if(h > dst_rcv)continue;
+            //}
             curr_node->parent = proposed_parent;
             curr_node->f = proposed_shortest_dist;
             curr_node->g = h - proposed_shortest_dist;
@@ -355,17 +360,20 @@ void Graph::astar_mpi(int src, int dst)
             curr_node->closed = true;
 
             if (curr_node->id == dst){
-                std::cout << "Destination found.." << std::endl;
-                std::cout << "Distance = " << curr_node->f << " " << proposed_parent << std::endl;
-                dst_rcv = curr_node->f;
+                std::cout << "Destination found on .. rank = " << dst_rank << std::endl;
+                std::cout << "Distance = " << curr_node->f  << std::endl;
+                
                 if (!dst_found)
                 {
                     dst_found=true;
-                    MPI_Ibcast(&dst_rcv, 1, MPI_INT, dst_rank, MPI_COMM_WORLD, &dst_req);
+                    dst_rcv = curr_node->f;
+		    //dst_dst = dst_rcv;
+		    MPI_Ibcast(&dst_rcv, 1, MPI_INT, dst_rank, MPI_COMM_WORLD, &dst_req);
                 }
                 
                 continue;
             }
+	    //if(dst_found && (curr_node->f + curr_node->g > dst_dst))continue;
 
             // 2b: populate message set
             for (auto edge : curr_node->neighbours)
@@ -394,9 +402,11 @@ void Graph::astar_mpi(int src, int dst)
                 if(dst_rank != rank)
                 {
                     MPI_Test(&dst_req, &dst_flag, MPI_STATUS_IGNORE);
-                    if(dst_flag)
+                    if(dst_flag){
                         dst_found = true;
-                }
+                        //dst_dst = dst_rcv;
+		    }
+		}
             }
             else
             {
