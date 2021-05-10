@@ -180,10 +180,14 @@ def save_graph(G, path):
             f.write("\n")
 
     with open(os.path.join(path, "src_dst.out"), "w") as f:
-        number_of_nodes = G.number_of_nodes()
-        s = random.randrange(number_of_nodes)
-        d = random.randrange(number_of_nodes)
-        while s == d:
-            d = random.randrange(number_of_nodes)
-        f.write(f"{s} {d}\n")
+        #number_of_nodes = G.number_of_nodes()
+        #s = random.randrange(number_of_nodes)
+        #d = random.randrange(number_of_nodes)
+        #while s == d:
+        #    d = random.randrange(number_of_nodes)
+        #f.write(f"{s} {d}\n")
+        nodes = list(G.nodes())
+        nodes.sort(key=make_sorting_fn(G))
+        src, dst = nodes[0], nodes[-1]
+        f.write(f"{src} {dst}\n")
     
