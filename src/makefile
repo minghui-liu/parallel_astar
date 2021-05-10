@@ -1,4 +1,4 @@
-CC = mpic++
+CC = mpic++ 
 SRCS = vec2i.cpp node.cpp graph.cpp
 OBJS = vec2i.o node.o graph.o
 HPPS = astar.hpp

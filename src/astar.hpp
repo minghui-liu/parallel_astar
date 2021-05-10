@@ -1,6 +1,6 @@
 #ifndef __ASTAR_HPP
 #define __ASTAR_HPP
-#define MAX_RECV_BUFF_SIZE 10000
+#define MAX_RECV_BUFF_SIZE 100000
 #include <vector>
 #include <functional>
 #include <set>

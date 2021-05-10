@@ -235,7 +235,7 @@ void Graph::add_msgs_to_open_list(int num_msgs_recvd)
         //     std::cout << "rank" << rank << " hereeee3" << std::endl;
         if (neighbour->open) //already in open list
         {
-            if (dist > neighbour->latest_shortest_distance_in_open_list) //no need to add this top open list
+            if (dist >= neighbour->latest_shortest_distance_in_open_list) //no need to add this top open list
                 continue;
         }
         h_ = msg_.h;
@@ -255,7 +255,7 @@ void Graph::add_msgs_to_open_list(int num_msgs_recvd)
         dist = msg_.dist;
         if (neighbour->open) //already in open list
         {
-            if (dist > neighbour->latest_shortest_distance_in_open_list) //no need to add this top open list
+            if (dist >= neighbour->latest_shortest_distance_in_open_list) //no need to add this top open list
                 continue;
         }
         h_ = msg_.h;
@@ -319,7 +319,8 @@ void Graph::astar_mpi(int src, int dst)
     send_buffers.resize(world_size);
     send_requests.resize(world_size, nullptr);
 
-    
+    int dst_dst;
+    dst_found = false;
     while(true)
     {
         // Step 2: process current open list and populate message set
@@ -334,15 +335,24 @@ void Graph::astar_mpi(int src, int dst)
             float h = std::get<0>(front);
             float proposed_shortest_dist = std::get<1>(front);
             
-            if (proposed_shortest_dist > curr_node->latest_shortest_distance_in_open_list) //outdated entry
-                continue;
+            // if (proposed_shortest_dist > curr_node->latest_shortest_distance_in_open_list) //outdated entry
+            //     continue;
+
+            //if ((dst_found) && (h >= dst_rcv))
+            //{
+            //    continue;
+            //}
 
             if (curr_node->closed)
             {
                 if (curr_node->id == src)continue;
-                if (proposed_shortest_dist > curr_node->f)continue;
+                if (proposed_shortest_dist >= curr_node->f)continue;
                 // this means a new shorter path to a closed node is found  
             }
+	    //else if(dst_found)
+	    //{
+		//if(h > dst_rcv)continue;
+            //}
             curr_node->parent = proposed_parent;
             curr_node->f = proposed_shortest_dist;
             curr_node->g = h - proposed_shortest_dist;
@@ -350,16 +360,20 @@ void Graph::astar_mpi(int src, int dst)
             curr_node->closed = true;
 
             if (curr_node->id == dst){
-                std::cout << "Destination found.." << std::endl;
-                std::cout << "Distance = " << curr_node->f << std::endl;
+                std::cout << "Destination found on .. rank = " << dst_rank << std::endl;
+                std::cout << "Distance = " << curr_node->f  << std::endl;
+                
                 if (!dst_found)
                 {
                     dst_found=true;
-                    MPI_Ibcast(&dst_rcv, 1, MPI_INT, dst_rank, MPI_COMM_WORLD, &dst_req);
+                    dst_rcv = curr_node->f;
+		    //dst_dst = dst_rcv;
+		    MPI_Ibcast(&dst_rcv, 1, MPI_INT, dst_rank, MPI_COMM_WORLD, &dst_req);
                 }
                 
                 continue;
             }
+	    //if(dst_found && (curr_node->f + curr_node->g > dst_dst))continue;
 
             // 2b: populate message set
             for (auto edge : curr_node->neighbours)
@@ -388,9 +402,11 @@ void Graph::astar_mpi(int src, int dst)
                 if(dst_rank != rank)
                 {
                     MPI_Test(&dst_req, &dst_flag, MPI_STATUS_IGNORE);
-                    if(dst_flag)
+                    if(dst_flag){
                         dst_found = true;
-                }
+                        //dst_dst = dst_rcv;
+		    }
+		}
             }
             else
             {
@@ -402,7 +418,8 @@ void Graph::astar_mpi(int src, int dst)
                 else
                 {
                     MPI_Test(&barrier_req, &barrier_flag, MPI_STATUS_IGNORE);
-                    if(barrier_req){
+                    if(barrier_req)
+                    {
                         int to_send = open_list.size(), to_recv=0;
                         MPI_Allreduce(&to_send, &to_recv, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
                         if(to_recv==0)
@@ -432,8 +449,6 @@ void Graph::astar_mpi(int src, int dst)
             
         // }
         add_msgs_to_open_list(num_msgs_recvd);
-
-        
 
     }
 }
