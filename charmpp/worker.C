@@ -11,7 +11,7 @@ Worker::Worker(int src, int dst, int numElements) {
   // Nothing to do when the Worker chare object is created.
   //   This is where member variables would be initialized
   //   just like in a C++ class constructor.
-  G = new Graph((char*)"../test_graphs/nodes.out", (char*)"../test_graphs/edges.out");
+  G = new Graph((char*)"../test_graphs-4/nodes.out", (char*)"../test_graphs-4/edges.out");
   CkPrintf("Chare %d: G->nodes size = %d\n", thisIndex, G->nodes.size());
   dst_found = false;
   in_barrier_mode = false;

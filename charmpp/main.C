@@ -21,6 +21,11 @@ Main::Main(CkArgMsg* msg) {
   if (msg->argc > 1)
     numElements = atoi(msg->argv[1]);
 
+  FILE *fp = fopen((char*)"../test_graphs-4/src_dst.out","r");
+  int src, dst;
+  while(fscanf(fp, "%d %d", &src, &dst) != EOF){};
+  fclose(fp);
+
   CkPrintf("numElements = %d.\n", numElements);
 
   // We are done with msg so delete it.
@@ -38,7 +43,7 @@ Main::Main(CkArgMsg* msg) {
   mainProxy = thisProxy;
 
   // Create the array of Hello chare objects.
-  workerArray = CProxy_Worker::ckNew(2263, 4613, numElements, numElements);
+  workerArray = CProxy_Worker::ckNew(src, dst, numElements, numElements);
 
   CkCallback *cb = new CkCallback(CkIndex_Main::reportIn(NULL),  mainProxy);
   workerArray.ckSetReductionClient(cb);
