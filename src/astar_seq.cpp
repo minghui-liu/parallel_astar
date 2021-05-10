@@ -6,16 +6,21 @@ using namespace std::placeholders;
 using namespace AStar;
 using namespace std::chrono;
 
-int main()
+int main(int argc, char *argv[])
 {
-    Graph G = Graph((char*)"../test_graphs/nodes.out", (char*)"../test_graphs/edges.out");
+    Graph G = Graph(argv[1], argv[2]);
+
+    FILE *fp = fopen(argv[3],"r");
+    int src, dst;
+    while(fscanf(fp, "%d %d", &src, &dst) != EOF){};
+    fclose(fp);
     
     auto start = high_resolution_clock::now();
-    G.astar_seq(102577, 51670);
+    G.astar_seq(src, dst);
     auto stop = high_resolution_clock::now();
 
     auto duration = duration_cast<milliseconds>(stop - start);
-    G.show_path(51670);
+    //G.show_path(dst);
 
     
     std::cout << "Time taken:- " << duration.count() << " ms" << std::endl;

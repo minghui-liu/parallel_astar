@@ -12,13 +12,20 @@ int main(int argc, char *argv[])
     MPI_Init(&argc, &argv);
 
     std::cout << "Reading Graph..." << std::endl;
-    Graph G = Graph((char*)"../test_graphs/nodes.out", (char*)"../test_graphs/edges.out");
+    Graph G = Graph(argv[1], argv[2]);
+
+    FILE *fp = fopen(argv[3],"r");
+    int src, dst;
+    while(fscanf(fp, "%d %d", &src, &dst) != EOF){};
+    fclose(fp);
+  
     std::cout << "Read Graph..." << std::endl;
+
     
 
     std::cout << "Starting Astar..." << std::endl;
     auto start = high_resolution_clock::now();
-    G.astar_mpi(102577, 51670);
+    G.astar_mpi(src, dst);
     auto stop = high_resolution_clock::now();
     std::cout << "Ending Astar..." << std::endl;
 
