@@ -7,10 +7,8 @@ class Main : public CBase_Main {
  private:
   /// Member Variables (Object State) ///
   int numElements;
-
   int doneCount;
-  int checkinCount;
-  int curStep;
+  bool dst_found;
 
   CProxy_Worker workerArray;
   
@@ -22,8 +20,9 @@ class Main : public CBase_Main {
 
   /// Entry Methods ///
   void startStep();
-  void stepCheckin();
+  void dstFound();
   void done();
+  void reportIn(CkReductionMsg *msg);
 
 };
 

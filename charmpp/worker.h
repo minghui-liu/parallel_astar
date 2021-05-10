@@ -25,6 +25,8 @@ public:
   void hdastar();
   void receiveNode(float, float, int, int);
   void next_iter();
+  void setDstFound();
+  void reportOpenListSize();
 
 private:
   int hash(Node &n);
