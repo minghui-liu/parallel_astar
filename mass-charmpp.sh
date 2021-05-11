@@ -12,7 +12,7 @@ function build_submit() {
     fi
     run_dir="$(pwd)/charmpp"
     script_name=submit-${bin}-${node}-${nprocs}.sh
-
+    num_chares=$(( 4*nprocs )) 
 
     echo "#!/bin/bash
 
@@ -29,7 +29,7 @@ for m in openmpi/3.1.5/gcc/ charmpp ; do
 done
 
 echo running ${bin} with ${node} nodes and ${nprocs} processes
-mpirun -np $nprocs ./${bin}" > ${script_name} 
+mpirun -np $nprocs ./${bin} $num_chares" > ${script_name} 
 chmod +x ${script_name} 
 sbatch ${script_name}
 }
