@@ -21,6 +21,8 @@ Main::Main(CkArgMsg* msg) {
   if (msg->argc > 1)
     numElements = atoi(msg->argv[1]);
 
+  //numElements = CkNumPes() / 2;
+  //if(numElements==0)numElements+=1;
   FILE *fp = fopen((char*)"../test_graphs-4/src_dst.out","r");
   int src, dst;
   while(fscanf(fp, "%d %d", &src, &dst) != EOF){};
