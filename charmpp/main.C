@@ -60,8 +60,9 @@ Main::Main(CkMigrateMessage* msg) { }
 
 void Main::done() {
   doneCount++;
-  if (doneCount >= numElements) {
+  if (doneCount == numElements) {
     workerArray.reportOpenListSize();
+    doneCount=0;
   }
 }
 
@@ -72,10 +73,11 @@ void Main::reportIn(CkReductionMsg *msg) {
   if (total == 0) {
     CkExit();
   }
+  workerArray.remove_barrier_and_resume();
 }
 
-void Main::dstFound() {
-  workerArray.setDstFound();
+void Main::dstFound(int distance) {
+  workerArray.setDstFound(distance);
 }
 
 

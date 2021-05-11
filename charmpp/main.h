@@ -20,7 +20,7 @@ class Main : public CBase_Main {
 
   /// Entry Methods ///
   void startStep();
-  void dstFound();
+  void dstFound(int distance);
   void done();
   void reportIn(CkReductionMsg *msg);
 
