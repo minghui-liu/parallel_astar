@@ -328,13 +328,15 @@ void Graph::astar_mpi(int src, int dst)
         {
             // Step 2a : process open list
             OpenListMember front = open_list.top();
-            open_list.pop();
+            //open_list.pop();
             Node * curr_node = std::get<2>(front);
             //std::cout << "Popped " << curr_node->id << std::endl;
             Node * proposed_parent = std::get<3>(front);
             float h = std::get<0>(front);
             float proposed_shortest_dist = std::get<1>(front);
             
+
+	    open_list.pop();
             // if (proposed_shortest_dist > curr_node->latest_shortest_distance_in_open_list) //outdated entry
             //     continue;
 
@@ -421,6 +423,12 @@ void Graph::astar_mpi(int src, int dst)
                     if(barrier_req)
                     {
                         int to_send = open_list.size(), to_recv=0;
+			if(to_send)
+			{
+			  int top = std::get<0>(open_list.top());
+			  if(top>dst_rcv)to_send = 0;
+			}
+
                         MPI_Allreduce(&to_send, &to_recv, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
                         if(to_recv==0)
                         {
