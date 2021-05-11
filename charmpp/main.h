@@ -8,6 +8,7 @@ class Main : public CBase_Main {
   /// Member Variables (Object State) ///
   int numElements;
   int doneCount;
+  double start,end;
   bool dst_found;
 
   CProxy_Worker workerArray;

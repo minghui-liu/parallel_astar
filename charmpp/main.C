@@ -48,7 +48,7 @@ Main::Main(CkArgMsg* msg) {
   CkCallback *cb = new CkCallback(CkIndex_Main::reportIn(NULL),  mainProxy);
   workerArray.ckSetReductionClient(cb);
 
-
+  start = CmiTimer();
   workerArray.hdastar();
 }
 
@@ -71,6 +71,7 @@ void Main::reportIn(CkReductionMsg *msg) {
   int total = *(int *)msg->getData();
   CkPrintf("Total openlist size = %d\n", total);
   if (total == 0) {
+    CkPrintf("Total Time spent is = %lf \n",1000*(CmiTimer()-start));
     CkExit();
   }
   workerArray.remove_barrier_and_resume();
