@@ -7,12 +7,16 @@ function build_submit() {
     node=1
     ntasks_per_node=$2
     if [ $nprocs -eq 32 ] ; then
-        node=2
-        ntasks_per_node=16
+        node=4
+        ntasks_per_node=8
+    fi
+    if [ $nprocs -eq 16 ] ; then
+	node=2
+	ntasks_per_node=8
     fi
     run_dir="$(pwd)/charmpp"
     script_name=submit-${bin}-${node}-${nprocs}.sh
-    num_chares=$(( 4*nprocs )) 
+    num_chares=$(( 1*nprocs )) 
 
     echo "#!/bin/bash
 
