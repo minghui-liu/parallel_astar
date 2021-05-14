@@ -39,7 +39,7 @@ For Charm++ implementation, you can just generate the graph and run the code wit
 Note that the name of the directory that you store the generated graph should be `test_graphs-4` for Charm++ implementation.
 
 ### Mass Submit
-You can have your own `.sh` scripts or use our mass submit scripts to run the code. `mass-mpi.sh` and `mass-charmpp.sh` create submit scripts to run the program on 1, 2, 4, 8, 16, 32 processes. `mass-seq.sh` is implemented to the run program on graphs created with different K values. We used that script for our experiments but it can be adjusted by updating the for loop in line 33 in `mass-seg.sh`. For example, you can change that line to `for K in 4 8` if you generated two graphs: `test_graphs-4` and `test_graphs-8`.
+You can have your own `.sh` scripts or use our mass submit scripts to run the code. `mass-mpi.sh` and `mass-charmpp.sh` create submit scripts to run the program on 1, 2, 4, 8, 16, 32 processes. `mass-seq.sh` is implemented to the run program on graphs created with different K values. We used that script for our experiments but it can be adjusted by updating the for loop in line 33 in `mass-seq.sh`. For example, you can change that line to `for K in 4 8` if you generated two graphs: `test_graphs-4` and `test_graphs-8`.
 
 
 # Plots
