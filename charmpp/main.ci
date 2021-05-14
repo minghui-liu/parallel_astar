@@ -7,7 +7,7 @@ mainmodule main {
   mainchare Main {
     entry Main(CkArgMsg* msg);
     entry void done();
-    entry void dstFound();
+    entry void dstFound(int distance);
     entry void reportIn(CkReductionMsg *msg);
   };
 

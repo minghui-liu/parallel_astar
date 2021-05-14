@@ -6,7 +6,8 @@ module worker {
     entry void receiveNode(float, float, int, int);
     entry void next_iter();
     entry void reportOpenListSize();
-    entry void setDstFound();
+    entry void setDstFound(int distance);
+    entry void remove_barrier_and_resume();
   };
 
 };

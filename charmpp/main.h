@@ -8,6 +8,7 @@ class Main : public CBase_Main {
   /// Member Variables (Object State) ///
   int numElements;
   int doneCount;
+  double start,end;
   bool dst_found;
 
   CProxy_Worker workerArray;
@@ -20,7 +21,7 @@ class Main : public CBase_Main {
 
   /// Entry Methods ///
   void startStep();
-  void dstFound();
+  void dstFound(int distance);
   void done();
   void reportIn(CkReductionMsg *msg);
 

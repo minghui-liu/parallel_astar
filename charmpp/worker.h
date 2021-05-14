@@ -10,6 +10,7 @@ public:
   Graph *G;
   int numElements;
   int src, dst;
+  int approx_distance_to_dest;
   std::priority_queue<OpenListMember, std::vector<OpenListMember>, myComparator > open_list;
   std::vector< std::vector<msg> > message_set;
   bool dst_found;
@@ -25,8 +26,9 @@ public:
   void hdastar();
   void receiveNode(float, float, int, int);
   void next_iter();
-  void setDstFound();
+  void setDstFound(int);
   void reportOpenListSize();
+  void remove_barrier_and_resume();
 
 private:
   int hash(Node &n);

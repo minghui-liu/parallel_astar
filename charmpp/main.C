@@ -21,6 +21,8 @@ Main::Main(CkArgMsg* msg) {
   if (msg->argc > 1)
     numElements = atoi(msg->argv[1]);
 
+  //numElements = CkNumPes() / 2;
+  //if(numElements==0)numElements+=1;
   FILE *fp = fopen((char*)"../test_graphs-4/src_dst.out","r");
   int src, dst;
   while(fscanf(fp, "%d %d", &src, &dst) != EOF){};
@@ -48,7 +50,7 @@ Main::Main(CkArgMsg* msg) {
   CkCallback *cb = new CkCallback(CkIndex_Main::reportIn(NULL),  mainProxy);
   workerArray.ckSetReductionClient(cb);
 
-
+  start = CmiTimer();
   workerArray.hdastar();
 }
 
@@ -60,8 +62,9 @@ Main::Main(CkMigrateMessage* msg) { }
 
 void Main::done() {
   doneCount++;
-  if (doneCount >= numElements) {
+  if (doneCount == numElements) {
     workerArray.reportOpenListSize();
+    doneCount=0;
   }
 }
 
@@ -70,12 +73,14 @@ void Main::reportIn(CkReductionMsg *msg) {
   int total = *(int *)msg->getData();
   CkPrintf("Total openlist size = %d\n", total);
   if (total == 0) {
+    CkPrintf("Total Time spent is = %lf \n",1000*(CmiTimer()-start));
     CkExit();
   }
+  workerArray.remove_barrier_and_resume();
 }
 
-void Main::dstFound() {
-  workerArray.setDstFound();
+void Main::dstFound(int distance) {
+  workerArray.setDstFound(distance);
 }
 
 
