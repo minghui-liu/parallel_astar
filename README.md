@@ -43,3 +43,4 @@ You can have your own `.sh` scripts or use our mass submit scripts to run the co
 
 
 # Plots
+You can see the plot we generated for this project in `plots.ipynb`.
