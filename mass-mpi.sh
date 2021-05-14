@@ -14,7 +14,7 @@ function build_submit() {
     run_dir="$(pwd)/src"
     nodes_file="$(pwd)/test_graphs-${K}/nodes.out"
     edges_file="$(pwd)/test_graphs-${K}/edges.out"
-    src_dst_file="$(pwd)/test_graphs-4/src_dst.out"
+    src_dst_file="$(pwd)/test_graphs-${K}/src_dst.out"
     script_name=submit-${bin}-${node}-${nprocs}-${K}.sh
 
 
